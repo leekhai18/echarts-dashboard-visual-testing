@@ -6,6 +6,11 @@ import '@testing-library/jest-dom';
 
 expect.extend({ toMatchImageSnapshot });
 
+interface ScatterDataItem {
+  name: string;
+  value: [number, number];
+}
+
 describe('ScatterChartComponent', () => {
   let chartInteractionService: ChartInteractionService;
 
@@ -13,26 +18,26 @@ describe('ScatterChartComponent', () => {
     {
       name: 'Basic Data',
       data: [
-        { name: 'Category A', value: [10, 20] },
-        { name: 'Category B', value: [30, 40] },
-        { name: 'Category C', value: [50, 60] }
-      ]
+        { name: 'Point A', value: [10, 20] },
+        { name: 'Point B', value: [30, 40] },
+        { name: 'Point C', value: [50, 60] }
+      ] as ScatterDataItem[]
     },
     {
       name: 'Zero Values',
       data: [
-        { name: 'Category A', value: [0, 0] },
-        { name: 'Category B', value: [0, 0] },
-        { name: 'Category C', value: [0, 0] }
-      ]
+        { name: 'Point A', value: [0, 0] },
+        { name: 'Point B', value: [0, 0] },
+        { name: 'Point C', value: [0, 0] }
+      ] as ScatterDataItem[]
     },
     {
       name: 'Large Values',
       data: [
-        { name: 'Category A', value: [1000, 2000] },
-        { name: 'Category B', value: [3000, 4000] },
-        { name: 'Category C', value: [5000, 6000] }
-      ]
+        { name: 'Point A', value: [1000, 2000] },
+        { name: 'Point B', value: [3000, 4000] },
+        { name: 'Point C', value: [5000, 6000] }
+      ] as ScatterDataItem[]
     }
   ];
 
@@ -67,7 +72,7 @@ describe('ScatterChartComponent', () => {
   });
 
   it('should handle data selection from service', async () => {
-    const testData = { name: 'Category A', value: 10 };
+    const testData = { name: 'Point A', value: 10 };
     chartInteractionService.updateSelectedData(testData);
 
     // Wait for chart to update
@@ -99,6 +104,7 @@ describe('ScatterChartComponent', () => {
       // Take snapshot
       const chartElement = screen.getByRole('img', { hidden: true });
       expect(chartElement).toMatchImageSnapshot({
+        customSnapshotIdentifier: `scatter-chart-${name.toLowerCase().replace(/\s+/g, '-')}`,
         failureThreshold: 0.1,
         failureThresholdType: 'percent'
       });
