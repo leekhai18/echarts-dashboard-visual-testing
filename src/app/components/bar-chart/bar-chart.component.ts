@@ -10,11 +10,11 @@ import * as echarts from 'echarts';
 })
 export class BarChartComponent extends BaseChartComponent {
   private data = [
-    { name: 'Category A', value: 100 },
-    { name: 'Category B', value: 200 },
-    { name: 'Category C', value: 300 },
-    { name: 'Category D', value: 400 },
-    { name: 'Category E', value: 500 }
+    { name: 'Category A', value: 150 },
+    { name: 'Category B', value: 230 },
+    { name: 'Category C', value: 180 },
+    { name: 'Category D', value: 320 },
+    { name: 'Category E', value: 250 }
   ];
 
   private lastSelectedIndex: number = -1;

@@ -37,7 +37,7 @@ export class PieChartComponent extends BaseChartComponent {
       series: [{
         name: 'Categories',
         type: 'pie',
-        radius: ['40%', '70%'],
+        radius: '50%',
         avoidLabelOverlap: true,
         itemStyle: {
           borderRadius: 10,

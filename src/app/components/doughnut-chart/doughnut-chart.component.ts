@@ -38,7 +38,7 @@ export class DoughnutChartComponent extends BaseChartComponent {
       series: [{
         name: 'Categories',
         type: 'pie',
-        radius: ['50%', '70%'],
+        radius: ['40%', '70%'],
         avoidLabelOverlap: true,
         itemStyle: {
           borderRadius: 10,
