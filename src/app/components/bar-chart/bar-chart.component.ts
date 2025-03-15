@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { BaseChartComponent } from '../base-chart.component';
 import { ChartData } from '../../services/chart-interaction.service';
 import * as echarts from 'echarts';
@@ -17,14 +17,19 @@ export class BarChartComponent extends BaseChartComponent {
     { name: 'Category E', value: 500 }
   ];
 
-  protected initChart(): void {
+  private lastSelectedIndex: number = -1;
+
+  protected override initChart(): void {
     this.chart = echarts.init(this.chartContainer.nativeElement);
     const option = {
       title: {
         text: 'Bar Chart'
       },
       tooltip: {
-        trigger: 'axis'
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        }
       },
       xAxis: {
         type: 'category',
@@ -34,25 +39,63 @@ export class BarChartComponent extends BaseChartComponent {
         type: 'value'
       },
       series: [{
-        data: this.data.map(item => item.value),
+        data: this.data.map(item => ({
+          value: item.value,
+          itemStyle: {
+            normal: {
+              color: '#5470c6'
+            },
+            emphasis: {
+              color: '#91cc75'
+            }
+          }
+        })),
         type: 'bar',
         emphasis: {
-          focus: 'series'
-        }
+          focus: 'series',
+          blurScope: 'coordinateSystem'
+        },
+        animationDuration: 300
       }]
     };
 
     this.chart.setOption(option);
+    
     this.chart.on('click', (params) => {
+      // Clear previous selection
+      if (this.lastSelectedIndex !== -1) {
+        this.chart?.dispatchAction({
+          type: 'downplay',
+          dataIndex: this.lastSelectedIndex
+        });
+      }
+
       const selectedData = this.data[params.dataIndex];
+      this.lastSelectedIndex = params.dataIndex;
+
+      // Highlight new selection
+      this.chart?.dispatchAction({
+        type: 'highlight',
+        dataIndex: params.dataIndex
+      });
+
       this.chartInteractionService.updateSelectedData(selectedData);
     });
   }
 
-  protected handleDataSelection(data: ChartData): void {
+  protected override handleDataSelection(data: ChartData): void {
     if (this.chart) {
+      // Clear previous selection
+      if (this.lastSelectedIndex !== -1) {
+        this.chart.dispatchAction({
+          type: 'downplay',
+          dataIndex: this.lastSelectedIndex
+        });
+      }
+
       const index = this.data.findIndex(item => item.name === data.name);
       if (index !== -1) {
+        this.lastSelectedIndex = index;
         this.chart.dispatchAction({
           type: 'highlight',
           dataIndex: index
