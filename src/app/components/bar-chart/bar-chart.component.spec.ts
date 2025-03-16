@@ -38,6 +38,14 @@ describe('BarChartComponent', () => {
   ];
 
   beforeEach(async () => {
+    // Mock canvas dimensions, ignore warnings of [Echarts] Can't get canvas width/height
+    Object.defineProperty(HTMLCanvasElement.prototype, 'clientWidth', {
+      get: function() { return 800; }
+    });
+    Object.defineProperty(HTMLCanvasElement.prototype, 'clientHeight', {
+      get: function() { return 400; }
+    });
+
     const { fixture } = await render(BarChartComponent, {
       providers: [ChartInteractionService]
     });

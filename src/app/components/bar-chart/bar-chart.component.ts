@@ -6,7 +6,7 @@ import * as echarts from 'echarts';
 @Component({
   selector: 'app-bar-chart',
   standalone: true,
-  template: '<div #chartContainer style="width: 100%; height: 400px;"></div>'
+  template: '<div #chartContainer data-testid="chart-container" style="width: 100%; height: 400px;"></div>'
 })
 export class BarChartComponent extends BaseChartComponent {
   private data = [
@@ -60,7 +60,7 @@ export class BarChartComponent extends BaseChartComponent {
     };
 
     this.chart.setOption(option);
-    
+
     this.chart.on('click', (params) => {
       // Clear previous selection
       if (this.lastSelectedIndex !== -1) {
