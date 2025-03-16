@@ -6,7 +6,7 @@ import * as echarts from 'echarts';
 @Component({
   selector: 'app-bar-chart',
   standalone: true,
-  template: '<div #chartContainer data-testid="chart-container" style="width: 100%; height: 400px;"></div>'
+  template: '<div #chartContainer data-testid="chart-container" style="width: 400px; height: 400px;"></div>'
 })
 export class BarChartComponent extends BaseChartComponent {
   private data = [
@@ -20,7 +20,10 @@ export class BarChartComponent extends BaseChartComponent {
   private lastSelectedIndex: number = -1;
 
   protected override initChart(): void {
-    this.chart = echarts.init(this.chartContainer.nativeElement);
+    this.chart = echarts.init(this.chartContainer.nativeElement, null, {
+      width: 400,
+      height: 400
+    });
     const option = {
       title: {
         text: 'Bar Chart'
@@ -42,10 +45,10 @@ export class BarChartComponent extends BaseChartComponent {
         data: this.data.map(item => ({
           value: item.value,
           itemStyle: {
-            normal: {
-              color: '#5470c6'
-            },
-            emphasis: {
+            color: '#5470c6'
+          },
+          emphasis: {
+            itemStyle: {
               color: '#91cc75'
             }
           }
@@ -60,6 +63,7 @@ export class BarChartComponent extends BaseChartComponent {
     };
 
     this.chart.setOption(option);
+    this.chart.resize();
 
     this.chart.on('click', (params) => {
       // Clear previous selection

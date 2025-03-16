@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, HostListener, AfterViewInit } from '@angular/core';
 import { ChartInteractionService, ChartData } from '../services/chart-interaction.service';
 import { Subscription } from 'rxjs';
 import * as echarts from 'echarts';
@@ -7,7 +7,7 @@ import * as echarts from 'echarts';
   template: '',
   standalone: true
 })
-export abstract class BaseChartComponent implements OnInit, OnDestroy {
+export abstract class BaseChartComponent implements OnInit, OnDestroy, AfterViewInit {
   protected chart: echarts.ECharts | null = null;
   protected subscription: Subscription | null = null;
   @ViewChild('chartContainer') chartContainer!: ElementRef;
