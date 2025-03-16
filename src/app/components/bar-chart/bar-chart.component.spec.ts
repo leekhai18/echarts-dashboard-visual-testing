@@ -3,6 +3,7 @@ import { BarChartComponent } from './bar-chart.component';
 import { ChartInteractionService } from '../../services/chart-interaction.service';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
 import '@testing-library/jest-dom';
+import 'jest-canvas-mock';
 
 expect.extend({ toMatchImageSnapshot });
 
@@ -45,12 +46,13 @@ describe('BarChartComponent', () => {
   });
 
   it('should render the chart container', () => {
-    const container = screen.getByRole('img', { hidden: true });
+    const container = screen.getByTestId('chart-container');
     expect(container).toBeInTheDocument();
+    expect(container.querySelector('canvas')).toBeInTheDocument();
   });
 
   it('should handle window resize', async () => {
-    const container = screen.getByRole('img', { hidden: true });
+    const container = screen.getByTestId('chart-container');
     const originalWidth = container.clientWidth;
     const originalHeight = container.clientHeight;
 
@@ -71,11 +73,11 @@ describe('BarChartComponent', () => {
     chartInteractionService.updateSelectedData(testData);
 
     // Wait for chart to update
-    await screen.findByRole('img', { hidden: true });
+    await screen.findByTestId('chart-container');
   });
 
   it('should handle click events', async () => {
-    const container = screen.getByRole('img', { hidden: true });
+    const container = screen.getByTestId('chart-container');
     await fireEvent.click(container);
 
     // Verify service was updated
@@ -88,16 +90,15 @@ describe('BarChartComponent', () => {
   testDataSets.forEach(({ name, data }) => {
     it(`should render correctly with ${name}`, async () => {
       // Update component data
-      const component = screen.getByRole('img', { hidden: true }).closest('app-bar-chart');
+      const component = screen.getByTestId('chart-container').closest('app-bar-chart');
       if (component) {
         Object.defineProperty(component, 'data', { value: data });
       }
 
       // Wait for chart to update
-      await screen.findByRole('img', { hidden: true });
+      const chartElement = await screen.findByTestId('chart-container');
 
       // Take snapshot
-      const chartElement = screen.getByRole('img', { hidden: true });
       expect(chartElement).toMatchImageSnapshot({
         customSnapshotIdentifier: `bar-chart-${name.toLowerCase().replace(/\s+/g, '-')}`,
         failureThreshold: 0.1,

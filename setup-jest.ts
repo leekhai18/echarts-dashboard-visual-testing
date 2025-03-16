@@ -1,7 +1,6 @@
-import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
+import 'jest-preset-angular/setup-jest';
 import '@testing-library/jest-dom';
-
-setupZoneTestEnv();
+import 'jest-canvas-mock';
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -19,22 +18,28 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock ResizeObserver
-global.ResizeObserver = class ResizeObserver {
+class MockResizeObserver {
   observe() {}
   unobserve() {}
   disconnect() {}
-};
+}
+Object.defineProperty(window, 'ResizeObserver', {
+  writable: true,
+  configurable: true,
+  value: MockResizeObserver,
+});
 
 // Mock IntersectionObserver
 class MockIntersectionObserver {
-  readonly root: Element | null = null;
-  readonly rootMargin: string = '';
-  readonly thresholds: ReadonlyArray<number> = [];
+  root: Element | Document | null = null;
+  rootMargin: string = '';
+  thresholds: number[] = [];
 
-  constructor(
-    private callback: IntersectionObserverCallback,
-    private options?: IntersectionObserverInit
-  ) {}
+  constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
+    this.root = options?.root ?? null;
+    this.rootMargin = options?.rootMargin ?? '';
+    this.thresholds = Array.isArray(options?.threshold) ? options.threshold : [options?.threshold ?? 0];
+  }
 
   observe() {}
   unobserve() {}
@@ -43,7 +48,6 @@ class MockIntersectionObserver {
     return [];
   }
 }
-
 Object.defineProperty(window, 'IntersectionObserver', {
   writable: true,
   configurable: true,
