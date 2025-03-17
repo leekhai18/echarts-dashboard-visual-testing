@@ -107,4 +107,90 @@ describe('ECharts Dashboard E2E Tests', () => {
       customSnapshotIdentifier: 'bar-chart-after-interaction'
     });
   });
+
+  it('should match snapshot of bar chart with different viewport', async () => {
+    // Wait for the chart to be rendered
+    await page.waitForSelector('app-bar-chart canvas');
+
+    // Set a different viewport size
+    await page.setViewport({ width: 800, height: 600 });
+
+    // Wait for chart to resize
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Take screenshot of chart with new viewport
+    const chartElement = await page.$('app-bar-chart canvas');
+    const screenshot = await chartElement?.screenshot({
+      encoding: 'base64',
+      type: 'png',
+    });
+
+    // Verify the chart matches the expected state with new viewport
+    expect(screenshot).toMatchImageSnapshot({
+      failureThreshold: 0.01,
+      failureThresholdType: 'percent',
+      customSnapshotIdentifier: 'bar-chart-different-viewport'
+    });
+  });
+
+  it('should match snapshot of bar chart with modified data', async () => {
+    // Wait for the chart to be rendered
+    await page.waitForSelector('app-bar-chart canvas');
+
+    // Modify chart data through ECharts instance
+    await page.evaluate(() => {
+      const chartElement = document.querySelector('app-bar-chart');
+      if (chartElement) {
+        // Get the component instance
+        const componentInstance = (window as any).ng.getComponent(chartElement);
+        if (componentInstance && componentInstance.chart) {
+          // Create new data
+          const newData = [
+            { name: 'Sales A', value: 1000 },
+            { name: 'Sales B', value: 800 },
+            { name: 'Sales C', value: 1200 },
+            { name: 'Sales D', value: 900 },
+            { name: 'Sales E', value: 1100 }
+          ];
+          
+          // Update chart through ECharts instance
+          componentInstance.chart.setOption({
+            xAxis: {
+              data: newData.map(item => item.name)
+            },
+            series: [{
+              data: newData.map(item => ({
+                value: item.value,
+                itemStyle: {
+                  color: '#5470c6'
+                },
+                emphasis: {
+                  itemStyle: {
+                    color: '#91cc75'
+                  }
+                }
+              }))
+            }]
+          });
+        }
+      }
+    });
+
+    // Wait for chart to update
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Take screenshot of updated chart
+    const chartElement = await page.$('app-bar-chart canvas');
+    const screenshot = await chartElement?.screenshot({
+      encoding: 'base64',
+      type: 'png',
+    });
+
+    // Verify the chart matches the expected state with new data
+    expect(screenshot).toMatchImageSnapshot({
+      failureThreshold: 0.01,
+      failureThresholdType: 'percent',
+      customSnapshotIdentifier: 'bar-chart-modified-data'
+    });
+  });
 }); 
