@@ -132,18 +132,19 @@ describe('BarChartComponent', () => {
 
       // Force ECharts to recognize the container size
       const chart = echarts.getInstanceByDom(chartElement);
+
       if (chart) {
         chart.resize({ width: 400, height: 400 });
       }
-
+      
       // Wait for chart to be fully rendered
       await new Promise(resolve => setTimeout(resolve, 100));
-
+      
       fixture.detectChanges();
       await fixture.whenStable();
-
+      
       // Get the canvas element after chart initialization
-      const canvas = chartElement.querySelector('canvas') as HTMLCanvasElement;
+      const canvas = chart?.renderToCanvas();
       if (!canvas) {
         throw new Error('Canvas element not found');
       }
@@ -161,8 +162,8 @@ describe('BarChartComponent', () => {
       const imageData = canvas.toDataURL('image/png');
       
       // Convert the data URL to a Buffer
-      const base64Data = imageData.replace(/^data:image\/png;base64,/, '');
-      const imageBuffer = Buffer.from(base64Data, 'base64');
+      const base64Data = imageData?.replace(/^data:image\/png;base64,/, '');
+      const imageBuffer = Buffer.from(base64Data || '', 'base64');
 
       // Take snapshot of the canvas content
       expect(imageBuffer).toMatchImageSnapshot({
