@@ -10,6 +10,7 @@ declare global {
     }
   }
   var browser: Browser;
+  var pages: Page[];
 }
 
 describe('ECharts Dashboard E2E Tests', () => {
@@ -20,14 +21,75 @@ describe('ECharts Dashboard E2E Tests', () => {
       throw new Error('Browser instance not initialized');
     }
     page = await global.browser.newPage();
+    
+    // Initialize global pages array if it doesn't exist
+    if (!global.pages) {
+      global.pages = [];
+    }
+    
+    // Add this page to the global pages array
+    global.pages.push(page);
+    
     await page.goto('http://localhost:4200');
   });
 
   afterAll(async () => {
     if (page) {
+      // Remove this page from the global pages array
+      global.pages = global.pages.filter(p => p !== page);
       await page.close();
     }
   });
+
+  // Teardown after each test case
+  afterEach(async () => {
+    try {
+      // Reset viewport to default
+      await page.setViewport({ width: 1280, height: 800 });
+      
+      // Clear chart state
+      await page.evaluate(() => {
+        const chartElement = document.querySelector('app-bar-chart');
+        if (chartElement) {
+          const componentInstance = (window as any).ng.getComponent(chartElement);
+          if (componentInstance && componentInstance.chartInteractionService) {
+            componentInstance.chartInteractionService.clearSelection();
+          }
+        }
+      });
+
+      // Clear any custom page state
+      await page.evaluate(() => {
+        // Clear any custom window properties
+        if ((window as any).customState) {
+          delete (window as any).customState;
+        }
+        
+        // Reset any custom styles
+        const styleElements = document.querySelectorAll('style[data-test-style]');
+        styleElements.forEach(el => el.remove());
+      });
+
+      // Wait for any animations or state updates to complete
+      await new Promise(resolve => setTimeout(resolve, 500));
+    } catch (error) {
+      console.error('Error in test case teardown:', error);
+    }
+  });
+
+  // Helper function to clear chart state (can be used within tests if needed)
+  const clearChartState = async () => {
+    await page.evaluate(() => {
+      const chartElement = document.querySelector('app-bar-chart');
+      if (chartElement) {
+        const componentInstance = (window as any).ng.getComponent(chartElement);
+        if (componentInstance && componentInstance.chartInteractionService) {
+          componentInstance.chartInteractionService.clearSelection();
+        }
+      }
+    });
+    await new Promise(resolve => setTimeout(resolve, 500));
+  };
 
   it('should load the dashboard page', async () => {
     // Wait for the page to load
@@ -191,6 +253,60 @@ describe('ECharts Dashboard E2E Tests', () => {
       failureThreshold: 0.01,
       failureThresholdType: 'percent',
       customSnapshotIdentifier: 'bar-chart-modified-data'
+    });
+  });
+
+  it('should match snapshot of full page after chart interactions', async () => {
+    // Wait for the page to load
+    await page.waitForSelector('app-root');
+    
+    // Wait for chart to be rendered
+    await page.waitForSelector('app-bar-chart canvas');
+    
+    // Get the chart container
+    const chartContainer = await page.$('app-bar-chart');
+    expect(chartContainer).toBeTruthy();
+
+    // Simulate click on the chart
+    const box = await chartContainer?.boundingBox();
+    if (box) {
+      // Click in the middle of the chart
+      await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    }
+
+    // Wait for animations and state updates
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // // Update chart state through ChartInteractionService
+    // await page.evaluate(() => {
+    //   const chartElement = document.querySelector('app-bar-chart');
+    //   if (chartElement) {
+    //     const componentInstance = (window as any).ng.getComponent(chartElement);
+    //     if (componentInstance && componentInstance.chartInteractionService) {
+    //       // Update selected data through the service
+    //       componentInstance.chartInteractionService.updateSelectedData({
+    //         name: 'Category A',
+    //         value: 150
+    //       });
+    //     }
+    //   }
+    // });
+
+    // // Wait for state updates to propagate
+    // await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Take a full page screenshot
+    const screenshot = await page.screenshot({
+      fullPage: true,
+      encoding: 'base64',
+      type: 'png'
+    });
+
+    // Verify the full page matches the expected state
+    expect(screenshot).toMatchImageSnapshot({
+      failureThreshold: 0.01,
+      failureThresholdType: 'percent',
+      customSnapshotIdentifier: 'full-page-after-interactions'
     });
   });
 }); 
