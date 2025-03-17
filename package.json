@@ -8,7 +8,9 @@
     "watch": "ng build --watch --configuration development",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:e2e": "jest -c jest-puppeteer.config.js",
+    "test:e2e:update": "jest -c jest-puppeteer.config.js --updateSnapshot"
   },
   "private": true,
   "dependencies": {
@@ -32,14 +34,19 @@
     "@angular/compiler-cli": "^17.2.0",
     "@testing-library/angular": "^14.2.1",
     "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^29.5.12",
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/node": "^20.11.19",
+    "@types/puppeteer": "^5.4.7",
+    "@types/testing-library__user-event": "^4.1.1",
     "canvas": "^2.11.2",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-image-snapshot": "^6.1.0",
     "jest-preset-angular": "^14.0.0",
+    "jest-puppeteer": "^11.0.0",
+    "puppeteer": "^24.4.0",
     "typescript": "~5.3.3"
   }
 }
