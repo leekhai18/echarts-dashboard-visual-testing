@@ -6,52 +6,53 @@ This document outlines a streamlined testing strategy for applications with sign
 ## E2E Testing Tools
 
 ### Available Options
-1. **Jest + Puppeteer**
+1. **Playwright (Recommended)**
+   - Pros:
+     - Full WebGL support for complex visualizations
+     - Multi-browser support (Chromium, Firefox, WebKit)
+     - Modern architecture with minimal configuration
+     - Excellent performance for large data visualizations
+     - Built-in auto-wait and debugging tools
+     - Native support for visual testing
+     - Clean and maintainable test code
+   - Cons:
+     - Newer tool, smaller community
+     - May require learning new concepts
+     - Less integration with existing Jest setups
+
+2. **Jest + Puppeteer**
    - Pros:
      - Seamless integration with Jest
      - Full control over browser automation
-     - Great for visual regression testing
      - Familiar Jest API
    - Cons:
+     - Limited WebGL support
      - Manual setup required
-     - Less built-in features compared to Cypress/Playwright
+     - More boilerplate configuration
      - May need additional libraries for common operations
 
-2. **Cypress**
+3. **Cypress**
    - Pros:
      - Excellent developer experience
      - Built-in waiting and retry mechanisms
      - Great debugging tools
-     - Automatic waiting for elements
    - Cons:
-     - Limited to Chrome-based browsers
-     - Can be slower than Puppeteer
+     - Limited WebGL support
+     - Chrome-only testing
      - More expensive for commercial use
      - Less flexible for visual regression testing
 
-3. **Playwright**
-   - Pros:
-     - Multi-browser support
-     - Modern architecture
-     - Great performance
-     - Built-in auto-wait
-     - Excellent debugging tools
-   - Cons:
-     - Newer tool, smaller community
-     - May need additional setup for visual testing
-     - Learning curve for new features
-
 ### Tool Selection Criteria
 1. **Project Requirements**
-   - Visual regression testing needs
+   - WebGL support for complex visualizations
    - Browser support requirements
-   - Performance requirements
-   - Team expertise
+   - Performance with large datasets
+   - Visual testing capabilities
 
 2. **Team Considerations**
-   - Existing testing infrastructure
-   - Developer familiarity
+   - Developer experience
    - Maintenance resources
+   - Learning curve
    - Budget constraints
 
 3. **Integration Needs**
@@ -61,23 +62,56 @@ This document outlines a streamlined testing strategy for applications with sign
    - Visual testing capabilities
 
 ### Recommended Approach
-For visual applications, we recommend:
+For visual applications, especially those using WebGL (like ECharts with large datasets), we strongly recommend:
 
-1. **Primary Choice: Jest + Puppeteer**
-   - Best for visual regression testing
-   - Full control over browser automation
-   - Seamless integration with Jest
-   - Cost-effective and flexible
+1. **Primary Choice: Playwright**
+   - Best for WebGL-based visualizations
+   - Modern architecture with minimal configuration
+   - Excellent performance for large datasets
+   - Built-in visual testing capabilities
+   - Multi-browser support
+   - Clean and maintainable test code
 
-2. **Alternative: Playwright**
-   - If multi-browser testing is crucial
-   - For modern projects starting fresh
-   - When advanced debugging is needed
+2. **Consider Jest + Puppeteer When**
+   - Deep integration with Jest is required
+   - WebGL support is not critical
+   - Existing Jest infrastructure is in place
 
 3. **Consider Cypress When**
    - Developer experience is top priority
+   - WebGL support is not needed
    - Chrome-only testing is acceptable
    - Budget allows for commercial license
+
+### Playwright Implementation Example
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('ECharts Visualization Tests', () => {
+  test('should render large dataset correctly', async ({ page }) => {
+    await page.goto('/dashboard');
+    
+    // Wait for chart to be ready
+    await page.waitForSelector('.echarts-instance');
+    
+    // Take screenshot of the chart
+    const chart = await page.locator('.echarts-instance');
+    await expect(chart).toHaveScreenshot('large-dataset-chart.png');
+  });
+
+  test('should handle user interactions', async ({ page }) => {
+    await page.goto('/dashboard');
+    
+    // Simulate zoom interaction
+    await page.mouse.move(400, 300);
+    await page.mouse.wheel(0, -100);
+    
+    // Take screenshot after interaction
+    const chart = await page.locator('.echarts-instance');
+    await expect(chart).toHaveScreenshot('zoomed-chart.png');
+  });
+});
+```
 
 ## Core Principles
 
