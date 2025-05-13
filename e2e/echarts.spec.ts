@@ -130,9 +130,9 @@ test.describe('ECharts Component Tests', () => {
 
       // Test different data sets
       const testDataSets = [
-        [120, 200, 150, 80, 70, 110, 130],
-        [50, 100, 200, 150, 80, 120, 90],
-        [200, 150, 100, 50, 80, 120, 180]
+        [220, 200, 150, 80, 70, 110, 120],
+        [150, 100, 200, 150, 80, 120, 90],
+        [100, 150, 100, 50, 80, 120, 180]
       ];
 
       for (const [index, data] of testDataSets.entries()) {

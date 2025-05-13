@@ -10,7 +10,7 @@ import * as echarts from 'echarts';
 })
 export class BarChartComponent extends BaseChartComponent {
   private data = [
-    { name: 'Category A', value: 150 },
+    { name: 'Category A', value: 160 },
     { name: 'Category B', value: 230 },
     { name: 'Category C', value: 180 },
     { name: 'Category D', value: 320 },
